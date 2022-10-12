@@ -37,6 +37,7 @@
 
 #define START_STRING_FORMAT "Starting (%lu)%s::%s:%d "
 #define END_STRING_FORMAT "Ending (%lu)%s::%s:%d "
+#define CHECK_STRING_FORMAT "Check (%lu)%s::%s:%d "
 
 #if defined( _WIN32)
 // VS C/C++
@@ -51,16 +52,25 @@
  * Unfortunately this is a standards issue with the VS pre-processor.  Runs as expected though.
  * 
  * VS has an "/experimental:preprocessor" option which should fix this, otherwise just disable the C4003 warning.
+ * Or just ignore the warnings - you wouldn't leave trace on in a production build anyway.
  * 
  */
 #define TRACE_START( format, ... ) \
     do { \
         printf( START_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        fflush( stdout); \
     } while (0)
 
 #define TRACE_END( format, ... ) \
     do { \
         printf( END_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        fflush( stdout); \
+    } while (0)
+
+#define TRACE_CHECK( format, ... ) \
+    do { \
+        printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        fflush( stdout); \
     } while (0)
 
 #elif defined(__GNUG__)
@@ -72,11 +82,19 @@
 #define TRACE_START(format, ...) \
     do { \
         printf( START_STRING_FORMAT format "\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        fflush( stdout); \
     } while (0)
 
 #define TRACE_END(format, ...) \
     do { \
         printf( END_STRING_FORMAT format "\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        fflush( stdout); \
+    } while (0)
+
+#define TRACE_CHECK(format, ...) \
+    do { \
+        printf( CHECK_STRING_FORMAT format "\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        fflush( stdout); \
     } while (0)
 
 #elif defined(__GNUC__)
@@ -88,20 +106,30 @@
 #define TRACE_START( format, ...) \
     do { \
         printf( START_STRING_FORMAT format "\n", pthread_self(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        fflush( stdout); \
     } while (0)
 
 #define TRACE_END( format, ...) \
     do { \
         printf( END_STRING_FORMAT format "\n", pthread_self(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        fflush( stdout); \
+    } while (0)
+
+#define TRACE_CHECK( format, ...) \
+    do { \
+        printf( CHECK_STRING_FORMAT format "\n", pthread_self(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        fflush( stdout); \
     } while (0)
 
 #else
 #define TRACE_START( format, ... )
 #define TRACE_END( format, ... )
+#define TRACE_CHECK( format, ... )
 #endif
 #else
 #define TRACE_START( format, ... )
 #define TRACE_END( format, ... )
+#define TRACE_CHECK( format, ... )
 #endif
 
 #endif  // _TRACE_H_

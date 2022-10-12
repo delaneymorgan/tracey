@@ -19,6 +19,7 @@ SomeClass::SomeClass()
 {
     TRACE_START();
     m_number = 12345;
+    TRACE_CHECK("Arbitrary checkpoint");
     TRACE_END();
 }
 

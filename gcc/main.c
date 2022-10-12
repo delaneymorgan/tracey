@@ -7,6 +7,7 @@
 void YetAnotherFunction()
 {
     TRACE_START();
+    TRACE_CHECK("Arbitrary checkpoint");
     TRACE_END();
 }
 

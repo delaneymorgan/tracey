@@ -14,15 +14,26 @@ Anyone is free to copy this software as is, or modified as long as this attribut
 
 #### In client functions/methods:
 ```
-TRACE_START();
-TRACE_START( "myVariable: %d", myVariable);
-TRACE_END();
-TRACE_END( "myVariable: %d", myVariable);
+SomeClass::SomeClass()
+{
+    TRACE_START();
+    m_number = 12345;
+    TRACE_CHECK("Arbitrary checkpoint");
+    TRACE_END();
+}
+
+int myDouble( int num)
+{
+	TRACE_START( "num: %d", num);
+	int ret = 2 * num;
+	TRACE_END( "ret: %d", ret);
+	return ret;
+}
 ```
 
 #### To disable:
 ```
-#define TRACE_ON
+//#define TRACE_ON
 ```
 
 
