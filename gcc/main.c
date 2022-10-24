@@ -15,6 +15,7 @@ void AnotherFunction()
 {
     TRACE_START();
     YetAnotherFunction();
+    TRACE_SINGLE_CHECK("One Time Only");
     TRACE_END();
 }
 
@@ -28,5 +29,6 @@ void SomeFunction(int number)
 int main() {
     printf("Tracey Start\n");
     SomeFunction(12345);
+    SomeFunction(54321);
     return 0;
 }

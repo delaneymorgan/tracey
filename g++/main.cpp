@@ -55,11 +55,13 @@ void SomeFunction(int number)
 {
     TRACE_START("number: %d", number);
     AnotherFunction();
+    TRACE_SINGLE_CHECK("One Time Only");
     TRACE_END();
 }
 
 int main() {
     std::cout << "Tracey Start" << std::endl;
     SomeFunction(12345);
+    SomeFunction(54321);
     return 0;
 }

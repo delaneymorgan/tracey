@@ -73,6 +73,17 @@
         fflush( stdout); \
     } while (0)
 
+#define TRACE_SINGLE_CHECK( format, ...) \
+    do { \
+        static bool firstTime = true; \
+        if (firstTime) \
+        { \
+            firstTime = false; \
+            printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+            fflush( stdout); \
+        } \
+    } while (0)
+
 #elif defined(__GNUG__)
 // GNU C++
 
@@ -97,11 +108,23 @@
         fflush( stdout); \
     } while (0)
 
+#define TRACE_SINGLE_CHECK( format, ...) \
+    do { \
+        static bool firstTime = true; \
+        if (firstTime) \
+        { \
+            firstTime = false; \
+            printf( CHECK_STRING_FORMAT format "\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+            fflush( stdout); \
+        } \
+    } while (0)
+
 #elif defined(__GNUC__)
 // GNU C
 
 #include <stdio.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #define TRACE_START( format, ...) \
     do { \
@@ -121,15 +144,28 @@
         fflush( stdout); \
     } while (0)
 
+#define TRACE_SINGLE_CHECK( format, ...) \
+    do { \
+        static bool firstTime = true; \
+        if (firstTime) \
+        { \
+            firstTime = false; \
+            printf( CHECK_STRING_FORMAT format "\n", pthread_self(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+            fflush( stdout); \
+        } \
+    } while (0)
+
 #else
 #define TRACE_START( format, ... )
 #define TRACE_END( format, ... )
 #define TRACE_CHECK( format, ... )
+#define TRACE_SINGLE_CHECK( format, ... )
 #endif
 #else
 #define TRACE_START( format, ... )
 #define TRACE_END( format, ... )
 #define TRACE_CHECK( format, ... )
+#define TRACE_SINGLE_CHECK( format, ... )
 #endif
 
 #endif  // _TRACE_H_
