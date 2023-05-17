@@ -26,6 +26,7 @@ SomeClass::SomeClass()
 int myDouble( int num)
 {
 	TRACE_START( "num: %d", num);
+    TRACE_ON_CHANGE( "num: %d", num);
 	int ret = 2 * num;
 	TRACE_END( "ret: %d", ret);
 	return ret;

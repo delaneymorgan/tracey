@@ -38,6 +38,7 @@
 #define START_STRING_FORMAT "Starting (%lu)%s::%s:%d "
 #define END_STRING_FORMAT "Ending (%lu)%s::%s:%d "
 #define CHECK_STRING_FORMAT "Check (%lu)%s::%s:%d "
+#define CHANGE_STRING_FORMAT "Change (%lu)%s::%s:%d "
 
 #if defined( _WIN32)
 // VS C/C++
@@ -84,6 +85,21 @@
         } \
     } while (0)
 
+#define TRACE_ON_CHANGE( format, ...) \
+    do { \
+        static std::string lastTime;  \
+        size_t size = std::snprintf( NULL, 0, format, ##__VA_ARGS__ ); \
+        char buf[size + 1]; \
+        snprintf( buf, sizeof( buf ), format, ##__VA_ARGS__ ); \
+        std::string thisTime( buf ); \
+        if (thisTime != lastTime) \
+        { \
+            lastTime = thisTime; \
+            printf( CHANGE_STRING_FORMAT " %s\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
+            fflush( stdout); \
+        } \
+    } while (0)
+
 #elif defined(__GNUG__)
 // GNU C++
 
@@ -119,12 +135,28 @@
         } \
     } while (0)
 
+#define TRACE_ON_CHANGE( format, ...) \
+    do { \
+        static std::string lastTime;  \
+        size_t size = std::snprintf( NULL, 0, format, ##__VA_ARGS__ ); \
+        char buf[size + 1]; \
+        snprintf( buf, sizeof( buf ), format, ##__VA_ARGS__ ); \
+        std::string thisTime( buf ); \
+        if (thisTime != lastTime) \
+        { \
+            lastTime = thisTime; \
+            printf( CHANGE_STRING_FORMAT " %s\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
+            fflush( stdout); \
+        } \
+    } while (0)
+
 #elif defined(__GNUC__)
 // GNU C
 
-#include <stdio.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
 #define TRACE_START( format, ...) \
     do { \
@@ -155,17 +187,33 @@
         } \
     } while (0)
 
+#define TRACE_ON_CHANGE_MAX_SIZE 255
+
+#define TRACE_ON_CHANGE( format, ...) \
+    do { \
+        static char lastTime[TRACE_ON_CHANGE_MAX_SIZE]; \
+        char thisTime[TRACE_ON_CHANGE_MAX_SIZE]; \
+        snprintf( thisTime, sizeof(thisTime), format, ##__VA_ARGS__ ); \
+        if ( strcmp( lastTime, thisTime ) != 0 ) { \
+            strcpy( lastTime, thisTime ); \
+            printf( CHANGE_STRING_FORMAT "%s \n", pthread_self(), __FILE__, __func__, __LINE__, thisTime ); \
+            fflush( stdout); \
+        } \
+    } while (0)
+
 #else
 #define TRACE_START( format, ... )
 #define TRACE_END( format, ... )
 #define TRACE_CHECK( format, ... )
 #define TRACE_SINGLE_CHECK( format, ... )
+#define TRACE_ON_CHANGE( format, ... )
 #endif
 #else
 #define TRACE_START( format, ... )
 #define TRACE_END( format, ... )
 #define TRACE_CHECK( format, ... )
 #define TRACE_SINGLE_CHECK( format, ... )
+#define TRACE_ON_CHANGE( format, ... )
 #endif
 
 #endif  // _TRACE_H_

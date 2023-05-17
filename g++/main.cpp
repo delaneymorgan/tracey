@@ -10,7 +10,7 @@ public:
     SomeClass();
 
     void method1(const std::string& name) const;
-    int method2() const;
+    int method2( const std::string& param) const;
 private:
     int m_number;
 };
@@ -25,13 +25,21 @@ SomeClass::SomeClass()
 
 void SomeClass::method1(const std::string& name) const {
     TRACE_START("name: %s", name.c_str());
-    method2();
+    method2("fred");
+    method2("fred");
+    method2("fred");
+    method2("fred");
+    method2("joe");
+    method2("joe");
+    method2("joe");
+    method2("joe");
     TRACE_END();
 }
 
-int SomeClass::method2() const {
+int SomeClass::method2( const std::string& param) const {
     TRACE_START();
     int ret = m_number * 2;
+    TRACE_ON_CHANGE("param: %s", param.c_str());
     TRACE_END("ret: %d", ret);
     return ret;
 }

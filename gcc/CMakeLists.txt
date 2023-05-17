@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
-project(c C)
+project(tracey-gcc C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(c main.c)
+add_executable(tracey-gcc main.c)
