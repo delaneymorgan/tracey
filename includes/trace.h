@@ -27,20 +27,13 @@
  *     // #define TRACE_ON
  */
 
-#ifndef _TRACE_H_
-#define _TRACE_H_
+#ifndef TRACE_H_
+#define TRACE_H_
 
 
 #include "macros.h"
 
-#if defined( TRACE_ON)
-
-#define START_STRING_FORMAT "Starting (%lu)%s::%s:%d "
-#define END_STRING_FORMAT "Ending (%lu)%s::%s:%d "
-#define CHECK_STRING_FORMAT "Check (%lu)%s::%s:%d "
-#define CHANGE_STRING_FORMAT "Change (%lu)%s::%s:%d "
-
-#if defined( _WIN32)
+#if defined( _WIN32) && defined( TRACE_ON)
 // VS C/C++
 
 #include <processthreadsapi.h>
@@ -56,6 +49,13 @@
  * Or just ignore the warnings - you wouldn't leave trace on in a production build anyway.
  * 
  */
+
+#define DETAIL_STRING_FORMAT "(%lu)%s::%s:%d "
+#define START_STRING_FORMAT "Starting " DETAIL_STRING_FORMAT
+#define END_STRING_FORMAT "Ending " DETAIL_STRING_FORMAT
+#define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
+#define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
+
 #define TRACE_START( format, ... ) \
     do { \
         printf( START_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
@@ -100,27 +100,33 @@
         } \
     } while (0)
 
-#elif defined(__GNUG__)
+#elif defined(__GNUG__) && defined( TRACE_ON)
 // GNU C++
 
 #include <cstdio>
-#include <pthread.h>
+#include <unistd.h>
+
+#define DETAIL_STRING_FORMAT "(%u)%s::%s:%d "
+#define START_STRING_FORMAT "Starting " DETAIL_STRING_FORMAT
+#define END_STRING_FORMAT "Ending " DETAIL_STRING_FORMAT
+#define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
+#define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
 
 #define TRACE_START(format, ...) \
     do { \
-        printf( START_STRING_FORMAT format "\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        printf( START_STRING_FORMAT format "\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_END(format, ...) \
     do { \
-        printf( END_STRING_FORMAT format "\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        printf( END_STRING_FORMAT format "\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_CHECK(format, ...) \
     do { \
-        printf( CHECK_STRING_FORMAT format "\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        printf( CHECK_STRING_FORMAT format "\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
@@ -130,7 +136,7 @@
         if (firstTime) \
         { \
             firstTime = false; \
-            printf( CHECK_STRING_FORMAT format "\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+            printf( CHECK_STRING_FORMAT format "\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
             fflush( stdout); \
         } \
     } while (0)
@@ -145,34 +151,42 @@
         if (thisTime != lastTime) \
         { \
             lastTime = thisTime; \
-            printf( CHANGE_STRING_FORMAT " %s\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
+            printf( CHANGE_STRING_FORMAT " %s\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
             fflush( stdout); \
         } \
     } while (0)
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && defined( TRACE_ON)
 // GNU C
 
-#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+
+#define DETAIL_STRING_FORMAT "(%ld)%s::%s:%d "
+#define START_STRING_FORMAT "Starting " DETAIL_STRING_FORMAT
+#define END_STRING_FORMAT "Ending " DETAIL_STRING_FORMAT
+#define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
+#define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
 
 #define TRACE_START( format, ...) \
     do { \
-        printf( START_STRING_FORMAT format "\n", pthread_self(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        printf( START_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_END( format, ...) \
     do { \
-        printf( END_STRING_FORMAT format "\n", pthread_self(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        printf( END_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_CHECK( format, ...) \
     do { \
-        printf( CHECK_STRING_FORMAT format "\n", pthread_self(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        printf( CHECK_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
@@ -182,7 +196,7 @@
         if (firstTime) \
         { \
             firstTime = false; \
-            printf( CHECK_STRING_FORMAT format "\n", pthread_self(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+            printf( CHECK_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
             fflush( stdout); \
         } \
     } while (0)
@@ -196,24 +210,20 @@
         snprintf( thisTime, sizeof(thisTime), format, ##__VA_ARGS__ ); \
         if ( strcmp( lastTime, thisTime ) != 0 ) { \
             strcpy( lastTime, thisTime ); \
-            printf( CHANGE_STRING_FORMAT "%s \n", pthread_self(), __FILE__, __func__, __LINE__, thisTime ); \
+            printf( CHANGE_STRING_FORMAT "%s \n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, thisTime ); \
             fflush( stdout); \
         } \
     } while (0)
 
 #else
+
+// unsupported or disabled
 #define TRACE_START( format, ... )
 #define TRACE_END( format, ... )
 #define TRACE_CHECK( format, ... )
 #define TRACE_SINGLE_CHECK( format, ... )
 #define TRACE_ON_CHANGE( format, ... )
-#endif
-#else
-#define TRACE_START( format, ... )
-#define TRACE_END( format, ... )
-#define TRACE_CHECK( format, ... )
-#define TRACE_SINGLE_CHECK( format, ... )
-#define TRACE_ON_CHANGE( format, ... )
+
 #endif
 
-#endif  // _TRACE_H_
+#endif  // TRACE_H_
