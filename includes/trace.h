@@ -27,28 +27,28 @@
  *     // #define TRACE_ON
  */
 
+/**
+ * NOTE: In Visual Studio these macros will trigger the following warning:
+ *
+ *     C4003: not enough arguments for function-like macro invocation
+ *
+ * Unfortunately this is a standards issue with the VS pre-processor.  Runs as expected though.
+ *
+ * VS has an "/experimental:preprocessor" option which should fix this, otherwise just disable the C4003 warning.
+ * Or just ignore the warnings - you wouldn't leave trace on in a production build anyway.
+ *
+ */
+
 #ifndef TRACE_H_
 #define TRACE_H_
 
 
 #include "macros.h"
 
-#if defined( _WIN32) && defined( TRACE_ON)
-// VS C/C++
+#if defined( _WIN32) && defined(__cplusplus) && defined( TRACE_ON)
+// VS C++
 
 #include <processthreadsapi.h>
-
-/**
- * NOTE: these macros will trigger the following warning:
- * 
- *     C4003: not enough arguments for function-like macro invocation
- * 
- * Unfortunately this is a standards issue with the VS pre-processor.  Runs as expected though.
- * 
- * VS has an "/experimental:preprocessor" option which should fix this, otherwise just disable the C4003 warning.
- * Or just ignore the warnings - you wouldn't leave trace on in a production build anyway.
- * 
- */
 
 #define DETAIL_STRING_FORMAT "(%lu)%s::%s:%d "
 #define START_STRING_FORMAT "Starting " DETAIL_STRING_FORMAT
@@ -89,13 +89,67 @@
     do { \
         static std::string lastTime;  \
         size_t size = std::snprintf( NULL, 0, format, ##__VA_ARGS__ ); \
-        char buf[size + 1]; \
-        std::snprintf( buf, sizeof( buf ), format, ##__VA_ARGS__ ); \
-        std::string thisTime( buf ); \
+        std::unique_ptr<char> buf(new char[size]); \
+        std::snprintf(buf.get(), size, "param: %s", param.c_str()); \
+        std::string thisTime(buf.get()); \
         if (thisTime != lastTime) \
         { \
             lastTime = thisTime; \
-            printf( CHANGE_STRING_FORMAT " %s\n", pthread_self(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
+            printf( CHANGE_STRING_FORMAT " %s\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
+            fflush( stdout); \
+        } \
+    } while (0)
+
+#elif defined( _WIN32) && !defined(__cplusplus) && defined( TRACE_ON)
+// VS C
+
+#include <processthreadsapi.h>
+
+#define DETAIL_STRING_FORMAT "(%lu)%s::%s:%d "
+#define START_STRING_FORMAT "Starting " DETAIL_STRING_FORMAT
+#define END_STRING_FORMAT "Ending " DETAIL_STRING_FORMAT
+#define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
+#define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
+
+#define TRACE_START( format, ... ) \
+    do { \
+        printf( START_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        fflush( stdout); \
+    } while (0)
+
+#define TRACE_END( format, ... ) \
+    do { \
+        printf( END_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        fflush( stdout); \
+    } while (0)
+
+#define TRACE_CHECK( format, ... ) \
+    do { \
+        printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        fflush( stdout); \
+    } while (0)
+
+#define TRACE_SINGLE_CHECK(format, ...) \
+    do { \
+        static int firstTime = 1; \
+        if (firstTime) \
+        { \
+            firstTime = 0; \
+            printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+            fflush( stdout); \
+        } \
+    } while (0)
+
+#define TRACE_ON_CHANGE_MAX_SIZE 255
+
+#define TRACE_ON_CHANGE(format, ...) \
+    do { \
+        static char lastTime[TRACE_ON_CHANGE_MAX_SIZE]; \
+        char thisTime[TRACE_ON_CHANGE_MAX_SIZE]; \
+        snprintf( thisTime, sizeof(thisTime), format, ##__VA_ARGS__ ); \
+        if ( strcmp( lastTime, thisTime ) != 0 ) { \
+            strcpy( lastTime, thisTime ); \
+            printf( CHANGE_STRING_FORMAT "%s \n", GetCurrentThreadId(), __FILE__, __func__, __LINE__, thisTime ); \
             fflush( stdout); \
         } \
     } while (0)

@@ -1,3 +1,7 @@
+#ifdef _WIN32
+    #include <Windows.h>
+#endif  // _WIN32
+
 #include <stdio.h>
 
 #define TRACE_ON
