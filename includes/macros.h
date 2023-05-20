@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef _MACROS_H_
-#define _MACROS_H_
+#ifndef MACROS_H_
+#define MACROS_H_
 
 
 // returns a string of the identifer
@@ -25,4 +25,4 @@
 #endif  // defined(_WIN32)
 
 
-#endif  // _MACROS_H_
+#endif  // MACROS_H_

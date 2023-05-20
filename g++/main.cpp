@@ -68,7 +68,7 @@ void SomeFunction(int number)
 }
 
 int main() {
-    std::cout << "Tracey Start" << std::endl;
+    std::cout << "tracey-cpp Start" << std::endl;
     SomeFunction(12345);
     SomeFunction(54321);
     return 0;

@@ -33,7 +33,7 @@ void SomeFunction(int number)
 }
 
 int main() {
-    printf("Tracey Start\n");
+    printf("tracey-gcc Start\n");
     SomeFunction(12345);
     SomeFunction(54321);
     return 0;

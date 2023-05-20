@@ -15,7 +15,7 @@
  * 
  *     In client module:
  *         #define TRACE_ON
- *         #include "include/trace.h
+ *         #include "include/trace.h"
  * 
  *     In client functions/methods:
  *         TRACE_START();
@@ -90,7 +90,7 @@
         static std::string lastTime;  \
         size_t size = std::snprintf( NULL, 0, format, ##__VA_ARGS__ ); \
         char buf[size + 1]; \
-        snprintf( buf, sizeof( buf ), format, ##__VA_ARGS__ ); \
+        std::snprintf( buf, sizeof( buf ), format, ##__VA_ARGS__ ); \
         std::string thisTime( buf ); \
         if (thisTime != lastTime) \
         { \
@@ -146,7 +146,7 @@
         static std::string lastTime;  \
         size_t size = std::snprintf( NULL, 0, format, ##__VA_ARGS__ ); \
         char buf[size + 1]; \
-        snprintf( buf, sizeof( buf ), format, ##__VA_ARGS__ ); \
+        std::snprintf( buf, sizeof( buf ), format, ##__VA_ARGS__ ); \
         std::string thisTime( buf ); \
         if (thisTime != lastTime) \
         { \
@@ -162,7 +162,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 
@@ -172,25 +171,25 @@
 #define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
 #define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
 
-#define TRACE_START( format, ...) \
+#define TRACE_START(format, ...) \
     do { \
         printf( START_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
-#define TRACE_END( format, ...) \
+#define TRACE_END(format, ...) \
     do { \
         printf( END_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
-#define TRACE_CHECK( format, ...) \
+#define TRACE_CHECK(format, ...) \
     do { \
         printf( CHECK_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
-#define TRACE_SINGLE_CHECK( format, ...) \
+#define TRACE_SINGLE_CHECK(format, ...) \
     do { \
         static bool firstTime = true; \
         if (firstTime) \
@@ -203,7 +202,7 @@
 
 #define TRACE_ON_CHANGE_MAX_SIZE 255
 
-#define TRACE_ON_CHANGE( format, ...) \
+#define TRACE_ON_CHANGE(format, ...) \
     do { \
         static char lastTime[TRACE_ON_CHANGE_MAX_SIZE]; \
         char thisTime[TRACE_ON_CHANGE_MAX_SIZE]; \
