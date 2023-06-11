@@ -3,4 +3,4 @@ project(tracey-gcc C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(tracey-gcc main.c)
+add_executable(tracey-gcc main.c ../trace/trace.h)
