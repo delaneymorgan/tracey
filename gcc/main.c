@@ -6,7 +6,7 @@
 
 #define TRACE_ON
 
-#include "../includes/trace.h"
+#include "../trace/trace.h"
 
 void YetAnotherFunction( const char* param)
 {

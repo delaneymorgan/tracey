@@ -4,8 +4,9 @@
  * @brief A simple trace macro which can be controlled by individual modules,
  * or if brave, the entire program.
  *
- * (c) Delaney & Morgan Computing 2009-2010.
+ * (c) Delaney & Morgan Computing
  * <admin@delaneymorgan.com.au>
+ *
  * Anyone is free to copy this software as is, or modified as long as
  * this attribution remains. i.e. no complicated licences, no lawyers,
  * and no restrictions. Just use it, enjoy it, and relax.
@@ -56,21 +57,27 @@
 #define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
 #define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
 
+#if defined(TRACE_LONG_FILENAMES)
+    #define TRACE_FILENAME __FILE__
+#else // defined(TRACE_LONG_FILENAMES)
+    #define TRACE_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif // defined(TRACE_LONG_FILENAMES)
+
 #define TRACE_START( format, ... ) \
     do { \
-        printf( START_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        printf( START_STRING_FORMAT format "\n", GetCurrentThreadId(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_END( format, ... ) \
     do { \
-        printf( END_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        printf( END_STRING_FORMAT format "\n", GetCurrentThreadId(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_CHECK( format, ... ) \
     do { \
-        printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
         fflush( stdout); \
     } while (0)
 
@@ -80,7 +87,7 @@
         if (firstTime) \
         { \
             firstTime = false; \
-            printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+            printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
             fflush( stdout); \
         } \
     } while (0)
@@ -95,7 +102,7 @@
         if (thisTime != lastTime) \
         { \
             lastTime = thisTime; \
-            printf( CHANGE_STRING_FORMAT " %s\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
+            printf( CHANGE_STRING_FORMAT " %s\n", GetCurrentThreadId(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
             fflush( stdout); \
         } \
     } while (0)
@@ -111,21 +118,27 @@
 #define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
 #define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
 
+#if defined(TRACE_LONG_FILENAMES)
+    #define TRACE_FILENAME __FILE__
+#else // defined(TRACE_LONG_FILENAMES)
+    #define TRACE_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif // defined(TRACE_LONG_FILENAMES)
+
 #define TRACE_START( format, ... ) \
     do { \
-        printf( START_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        printf( START_STRING_FORMAT format "\n", GetCurrentThreadId(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_END( format, ... ) \
     do { \
-        printf( END_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        printf( END_STRING_FORMAT format "\n", GetCurrentThreadId(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_CHECK( format, ... ) \
     do { \
-        printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
+        printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__ ); \
         fflush( stdout); \
     } while (0)
 
@@ -135,7 +148,7 @@
         if (firstTime) \
         { \
             firstTime = 0; \
-            printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+            printf( CHECK_STRING_FORMAT format "\n", GetCurrentThreadId(), TRACE_FILENAME, __func__, __LINE__, ##__VA_ARGS__); \
             fflush( stdout); \
         } \
     } while (0)
@@ -149,7 +162,7 @@
         snprintf( thisTime, sizeof(thisTime), format, ##__VA_ARGS__ ); \
         if ( strcmp( lastTime, thisTime ) != 0 ) { \
             strcpy( lastTime, thisTime ); \
-            printf( CHANGE_STRING_FORMAT "%s \n", GetCurrentThreadId(), __FILE__, __func__, __LINE__, thisTime ); \
+            printf( CHANGE_STRING_FORMAT "%s \n", GetCurrentThreadId(), TRACE_FILENAME, __func__, __LINE__, thisTime ); \
             fflush( stdout); \
         } \
     } while (0)
@@ -158,6 +171,7 @@
 // GNU C++
 
 #include <cstdio>
+#include <cstring>
 #include <unistd.h>
 
 #define DETAIL_STRING_FORMAT "(%u)%s::%s:%d "
@@ -166,21 +180,27 @@
 #define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
 #define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
 
+#if defined(TRACE_LONG_FILENAMES)
+    #define TRACE_FILENAME __FILE__
+#else // defined(TRACE_LONG_FILENAMES)
+    #define TRACE_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif // defined(TRACE_LONG_FILENAMES)
+
 #define TRACE_START(format, ...) \
     do { \
-        printf( START_STRING_FORMAT format "\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        printf( START_STRING_FORMAT format "\n", gettid(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_END(format, ...) \
     do { \
-        printf( END_STRING_FORMAT format "\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        printf( END_STRING_FORMAT format "\n", gettid(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_CHECK(format, ...) \
     do { \
-        printf( CHECK_STRING_FORMAT format "\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+        printf( CHECK_STRING_FORMAT format "\n", gettid(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
@@ -190,7 +210,7 @@
         if (firstTime) \
         { \
             firstTime = false; \
-            printf( CHECK_STRING_FORMAT format "\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
+            printf( CHECK_STRING_FORMAT format "\n", gettid(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, ##__VA_ARGS__); \
             fflush( stdout); \
         } \
     } while (0)
@@ -205,7 +225,7 @@
         if (thisTime != lastTime) \
         { \
             lastTime = thisTime; \
-            printf( CHANGE_STRING_FORMAT " %s\n", gettid(), __FILE__, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
+            printf( CHANGE_STRING_FORMAT " %s\n", gettid(), TRACE_FILENAME, __PRETTY_FUNCTION__,  __LINE__, thisTime.c_str() ); \
             fflush( stdout); \
         } \
     } while (0)
@@ -225,21 +245,27 @@
 #define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
 #define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
 
+#if defined(TRACE_LONG_FILENAMES)
+    #define TRACE_FILENAME __FILE__
+#else // defined(TRACE_LONG_FILENAMES)
+    #define TRACE_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif // defined(TRACE_LONG_FILENAMES)
+
 #define TRACE_START(format, ...) \
     do { \
-        printf( START_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        printf( START_STRING_FORMAT format "\n", syscall(SYS_gettid), TRACE_FILENAME, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_END(format, ...) \
     do { \
-        printf( END_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        printf( END_STRING_FORMAT format "\n", syscall(SYS_gettid), TRACE_FILENAME, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
 #define TRACE_CHECK(format, ...) \
     do { \
-        printf( CHECK_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+        printf( CHECK_STRING_FORMAT format "\n", syscall(SYS_gettid), TRACE_FILENAME, __func__, __LINE__, ##__VA_ARGS__); \
         fflush( stdout); \
     } while (0)
 
@@ -249,7 +275,7 @@
         if (firstTime) \
         { \
             firstTime = false; \
-            printf( CHECK_STRING_FORMAT format "\n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+            printf( CHECK_STRING_FORMAT format "\n", syscall(SYS_gettid), TRACE_FILENAME, __func__, __LINE__, ##__VA_ARGS__); \
             fflush( stdout); \
         } \
     } while (0)
@@ -263,7 +289,7 @@
         snprintf( thisTime, sizeof(thisTime), format, ##__VA_ARGS__ ); \
         if ( strcmp( lastTime, thisTime ) != 0 ) { \
             strcpy( lastTime, thisTime ); \
-            printf( CHANGE_STRING_FORMAT "%s \n", syscall(SYS_gettid), __FILE__, __func__, __LINE__, thisTime ); \
+            printf( CHANGE_STRING_FORMAT "%s \n", syscall(SYS_gettid), TRACE_FILENAME, __func__, __LINE__, thisTime ); \
             fflush( stdout); \
         } \
     } while (0)
