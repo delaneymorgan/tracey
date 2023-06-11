@@ -16,7 +16,7 @@
 
 #include <string>
 
-std::string shortMethodName( const char* fullName) {
+std::string TRACE_ShortMethodName(const char* fullName) {
     std::string shortName = fullName;
     size_t openBracket = shortName.find('(');
     shortName = shortName.substr(0, openBracket);
