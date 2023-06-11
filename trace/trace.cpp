@@ -22,6 +22,5 @@ std::string TRACE_ShortMethodName(const char* fullName) {
     shortName = shortName.substr(0, openBracket);
     size_t methodStart = shortName.find_last_of(' ');
     shortName = shortName.substr(methodStart + 1);
-    shortName += "()";
     return shortName;
 }

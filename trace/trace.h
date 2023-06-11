@@ -57,10 +57,12 @@
 #define CHECK_STRING_FORMAT "Check " DETAIL_STRING_FORMAT
 #define CHANGE_STRING_FORMAT "Change " DETAIL_STRING_FORMAT
 
+std::string TRACE_ShortMethodName(const char* fullName);
+
 #if defined(TRACE_LONG_FILENAMES)
     #define TRACE_FILENAME __FILE__
 #else // defined(TRACE_LONG_FILENAMES)
-    #define TRACE_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+    #define TRACE_FILENAME (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 #endif // defined(TRACE_LONG_FILENAMES)
 
 #if defined(TRACE_LONG_METHOD_SIGNATURES)
@@ -127,7 +129,7 @@
 #if defined(TRACE_LONG_FILENAMES)
     #define TRACE_FILENAME __FILE__
 #else // defined(TRACE_LONG_FILENAMES)
-    #define TRACE_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+    #define TRACE_FILENAME (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 #endif // defined(TRACE_LONG_FILENAMES)
 
 #define TRACE_START( format, ... ) \
